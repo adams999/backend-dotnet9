@@ -1,11 +1,14 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using RealEstate.API.DTOs;
+using RealEstate.API.Models.Pagination;
 using RealEstate.API.Services;
 
 namespace RealEstate.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[ApiVersion("1.0")]
 public class PropertiesController : ControllerBase
 {
     private readonly IPropertyService _service;
@@ -16,10 +19,10 @@ public class PropertiesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<PropertyDto>>> GetProperties()
+    public async Task<ActionResult<PagedResult<PropertyDto>>> GetProperties([FromQuery] PaginationParams paginationParams)
     {
-        var properties = await _service.GetAllPropertiesAsync();
-        return Ok(properties);
+        var result = await _service.GetAllPropertiesAsync(paginationParams);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]

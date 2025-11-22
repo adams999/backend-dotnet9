@@ -9,6 +9,12 @@ public static class WebApplicationExtensions
     {
         // Add exception handling middleware
         app.UseMiddleware<ExceptionHandlingMiddleware>();
+        
+        // Add request/response logging middleware (only in development)
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
+        }
 
         return app;
     }

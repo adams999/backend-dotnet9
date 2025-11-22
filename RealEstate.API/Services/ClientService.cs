@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using RealEstate.API.Data;
 using RealEstate.API.DTOs;
 using RealEstate.API.Models;
+using RealEstate.API.Models.Pagination;
 
 namespace RealEstate.API.Services;
 
@@ -26,6 +27,33 @@ public class ClientService : IClientService
             })
             .ToListAsync();
     }
+
+    public async Task<PagedResult<ClientDto>> GetAllClientsAsync(PaginationParams paginationParams)
+    {
+        var totalCount = await _context.Clients.CountAsync();
+        
+        var items = await _context.Clients
+            .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+            .Take(paginationParams.PageSize)
+            .Select(c => new ClientDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Email = c.Email,
+                PhoneNumber = c.PhoneNumber
+            })
+            .ToListAsync();
+
+        return new PagedResult<ClientDto>
+        {
+            Items = items,
+            PageNumber = paginationParams.PageNumber,
+            PageSize = paginationParams.PageSize,
+            TotalCount = totalCount,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)paginationParams.PageSize)
+        };
+    }
+
 
     public async Task<ClientDto?> GetClientByIdAsync(int id)
     {
